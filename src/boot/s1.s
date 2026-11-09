@@ -29,6 +29,10 @@ flush_cs:
     mov si, msg
     call print_string
     call load_second_stage
+
+    ; print success
+    mov si, success_msg
+    call print_string
     
     ; jump to the second stage of the bootloader
     jmp 0x0000:0x7E00
@@ -48,13 +52,13 @@ print_string:
 
 ; actually loads the second stage of the bootloader from disk
 load_second_stage:
+    mov bx, 0x7E00          ; second stage
     mov ah, 0x02            ; read sectors
-    mov al, 4               ; number of sectors to read
+    mov al, 10              ; number of sectors to read
     mov ch, 0               ; cylinder
     mov cl, 2               ; sector (start from sector 2)
     mov dh, 0               ; head
     mov dl, [boot_drive]    ; drive number (first hard disk)
-    mov bx, 0x7E00          ; buffer to load the second stage
     int 0x13                ; call BIOS
 
     ; check for errors
@@ -67,8 +71,9 @@ load_second_stage:
     jmp $
 
 ; message strings
-msg db "[Bootloader] Loading second stage...", 0
-error_msg db "[Bootloader] Error loading second stage!", 0
+msg db "[Bootloader] Loading second stage...", 10, 13, 0
+error_msg db "[Bootloader] Error loading second stage!", 10, 13, 0
+success_msg db "[Bootloader] Second stage loaded successfully!", 10, 13, 0
 boot_drive db 0
 
 ; 0 pad to 512 bytes and signature
