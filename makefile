@@ -11,7 +11,7 @@ LD = ld
 NASM = nasm
 
 # flags
-CCFLAGS = -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -nostdlib -Wall -Wextra -Isrc
+CCFLAGS = -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -nostdlib -Wall -Wextra -Isrc -I./src/libc/include
 NASMFLAGS = -f bin
 LDFLAGS = -m elf_i386 -T linker.ld
 
@@ -44,7 +44,7 @@ $(ELF): $(COBJS) linker.ld
 # final img
 $(IMG): $(ELF) $(SOBJS)
 	@mkdir -p $(dir $@)
-	cat $(BUILD)/boot/*.bin > $@ 2>/dev/null || true
+	cat $(BUILD)/boot/s1.bin $(BUILD)/boot/s2.bin $(BUILD)/boot/s3.bin $(ELF) > $@
 
 # build c files
 $(BUILD)/%.o: $(SRC)/%.c $(HSRC)

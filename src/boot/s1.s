@@ -9,6 +9,8 @@
 [BITS 16]
 [ORG 0x7C00]
 
+%define BOOT_DRIVE_SCRATCH 0x0500
+
 ; actual start code
 _start:
     jmp 0x0000:flush_cs
@@ -16,6 +18,7 @@ _start:
 flush_cs:
     ; save boot_drive from BIOS
     mov [boot_drive], dl
+    mov [BOOT_DRIVE_SCRATCH], dl
 
     ; setup segments
     xor ax, ax
@@ -54,7 +57,7 @@ print_string:
 load_second_stage:
     mov bx, 0x7E00          ; second stage
     mov ah, 0x02            ; read sectors
-    mov al, 10              ; number of sectors to read
+    mov al, 5               ; number of sectors to read
     mov ch, 0               ; cylinder
     mov cl, 2               ; sector (start from sector 2)
     mov dh, 0               ; head
@@ -78,4 +81,5 @@ boot_drive db 0
 
 ; 0 pad to 512 bytes and signature
 times 510 - ($ - $$) db 0
+
 dw 0xAA55
