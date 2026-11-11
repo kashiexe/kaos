@@ -22,7 +22,7 @@ s3_start:
     ; prep kernel
     mov esi, 0x10000    ; from (0x1000:0x0000)
     mov edi, 0x100000   ; to 1MB
-    mov ecx, 0x10000    ; size (64KB)
+    mov ecx, 512        ; size (for now only 1 sector)
     rep movsb
 
     ; far jump to kernel

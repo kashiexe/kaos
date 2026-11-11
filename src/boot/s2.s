@@ -13,6 +13,9 @@
 ; known address for stage 1's boot drive (in scratch space)
 %define BOOT_DRIVE 0x0500
 
+; store VESA info for kernel
+%define VESA_INFO_o 0x0510
+
 ; beginning of stage 2
 s2_start:
     ; re-setup segments
@@ -98,18 +101,55 @@ enable_a20:
 ; checks if A20 line is enabled
 ; AL = 1 if enabled
 check_if_a20_enabled:
-    in al, 0x92
-    test al, 2
-    jnz .enabled
+    ; setup stack
+    pushf       ; push flag
+    push si
+    push di
+    push ds
+    push es
+    cli
 
-    ; not enabled
-    mov al, 0
+    mov ax, 0x0000  ; ds:si -> 0x0000:0x0500 (scratch space)
+    mov ds, ax
+    mov si, 0x0500
+
+    not ax          ; es:si -> 0xffff:0x0510 (because of +0x0510, it becomes the same place but 0xffff+0x0010 above it (relative to 0x0500))
+    mov es, ax
+    mov di, 0x0510
+
+    ; save the buffers from both locations before comparing
+    mov al, [ds:si]
+    mov [.buffer_below_mb], al
+    mov al, [es:di]
+    mov [.buffer_above_mb], al
+
+    ; now compare bytes in the different locations
+    mov ah, 1
+    mov byte [ds:si], 0
+    mov byte [es:di], 1
+    mov al, [ds:si]
+    cmp al, [es:di]
+    jne .exit
+    dec ah
+
+.exit:
+    ; restoring the original bytes (because we modified them and it's good practice to restore)
+    mov al, [.buffer_below_mb]
+    mov [ds:si], al
+    mov al, [.buffer_above_mb]
+    mov [es:di], al
+    shr ax, 8                   ; move result from ah to al register and clean ah
+
+    ; now pop all stack in order
+    pop es
+    pop ds 
+    pop di
+    pop si
+    popf
     ret
 
-.enabled:
-    mov al, 1
-    ret
-
+.buffer_below_mb db 0
+.buffer_above_mb db 0
 
 ; different A20 activation methods
 
@@ -214,17 +254,110 @@ a20_inth15:
 
 ; LFB
 lfb_init:
+    push bp
+    mov bp, sp
+
     ; get vbe info
     mov ax, 0x4F00
+    mov di, 0x7000 ; temp buffer for vbe info
     int 0x10
     cmp ax, 0x004F
     jne .failed
 
-    
+    ; find the mode we want (1024x768x32bpp)
+    call find_vbe_mode
+    jc .failed
+
+    ; get vbe mode info
+    mov ax, 0x4F01
+    mov cx, [vbe_mode]
+    mov di, 0x7200 ; temp buffer for vbe mode info
+    int 0x10
+    cmp ax, 0x004F
+    jne .failed
+
+    ; save pitch
+    mov ax, [0x7200 + 16]
+    mov [VESA_INFO_o + 0], ax
+
+    ; save width
+    mov ax, [0x7200 + 18]
+    mov [VESA_INFO_o + 2], ax
+
+    ; save height
+    mov ax, [0x7200 + 20]
+    mov [VESA_INFO_o + 4], ax
+
+    ; save addr
+    mov eax, [0x7200 + 40]
+    mov [VESA_INFO_o + 6], eax
+
+    ; set vbe mode
+    mov ax, 0x4F02
+
+    ; enable LFB (bit 14) on vbe mode
+    mov bx, [vbe_mode]
+    or bx, 0x4000
+    int 0x10
+    cmp ax, 0x004F
+    jne .failed
+
+    pop bp
+    ret
 
 .failed:
-    mov si, lfb_failed
+    pop bp
+    mov si, vesa_failed
     call print_string
+    ret
+
+; leave number in [vbe_mode]
+; we already have vbeinfoblock at 0x7000, so we can just check the list of modes there
+find_vbe_mode:
+    mov si, [0x7000 + 0x0E] ; pointer to list of modes (list offset)
+    mov ax, [0x7000 + 0x10] ; number of modes (list segment)
+    mov fs, ax
+
+.next:
+    mov cx, [fs:si] ; get mode number
+    add si, 2       ; increment to next mode in list
+    cmp cx, 0xFFFF  ; end of list
+    je .none
+
+    ; check temp buffer for mode info
+    push cx
+    push si
+    push fs
+
+    mov ax, 0x4F01
+    mov di, 0x7200
+    int 0x10
+    pop fs
+    pop si
+    pop cx
+
+    cmp ax, 0x004F
+    jne .next
+
+    mov ax, [0x7200]    ; get mode attributes
+    and ax, 0x91        ; bit0 support, bit4 graphics, bit7 LFB
+    cmp ax, 0x91
+    jne .next
+
+    cmp word [0x7200 + 18], 1024 ; check width
+    jne .next
+    cmp word [0x7200 + 20], 768  ; check height
+    jne .next
+    cmp byte [0x7200 + 25], 32   ; check bpp
+    jne .next
+
+    ; found the mode number
+    mov [vbe_mode], cx
+    clc
+    ret
+
+.none:
+    stc
     ret
 
 ; --- Utilities ---
@@ -247,7 +380,9 @@ a20_enabled_msg db "[Bootloader] A20 line enabled.", 10, 13, 0
 a20_activating_msg db "[Bootloader] Activating A20 line...", 10, 13, 0
 a20_failed_msg db "[Bootloader] Failed to enable A20 line.", 10, 13, 0
 disk_error_msg db "[Bootloader] Error reading disk.", 10, 13, 0
-lfb_failed db "[Bootloader] Failed to get LFB.", 10, 13, 0
+vesa_failed db "[Bootloader] Failed to set VBE mode.", 10, 13, 0
+
+vbe_mode dw 0
 
 ; GDT
 gdt_start: dq 0x0000000000000000, 0x00CF9A000000FFFF, 0x00CF92000000FFFF, 0x00CFFA000000FFFF, 0x00CFF2000000FFFF
@@ -264,7 +399,7 @@ disk_packet:
     dw 1        ; sectors to read
     dw 0x0000   ; offset
     dw 0x1000   ; segment
-    dq 6        ; start LBA sector to read from
+    dq 7        ; start LBA sector to read from
 
 
 ; pad to 2560 bytes (5 sectors, each sector 512 bytes)

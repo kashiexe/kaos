@@ -4,13 +4,15 @@
 #include<stdint.h>
 
 /* All information gotten from bootloader */
-struct BootInfo {
-    uint32_t fb_addr;
-    uint32_t fb_width;
-    uint32_t fb_height;
-    uint32_t fb_pitch;
-    uint32_t fb_bpp;
-} __attribute__((packed));
+typedef struct vesa_info {
+    uint16_t pitch;
+    uint16_t width;
+    uint16_t height;
+    uint32_t addr;
+} __attribute__((packed)) vesa_info_t;
+
+// known address (physical 0x0510)
+#define VESA_INFO ((vesa_info_t*)0x0510)
 
 
 /* GDT descriptor */

@@ -57,7 +57,7 @@ print_string:
 load_second_stage:
     mov bx, 0x7E00          ; second stage
     mov ah, 0x02            ; read sectors
-    mov al, 5               ; number of sectors to read
+    mov al, 6               ; number of sectors to read
     mov ch, 0               ; cylinder
     mov cl, 2               ; sector (start from sector 2)
     mov dh, 0               ; head

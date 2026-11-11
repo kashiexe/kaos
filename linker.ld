@@ -7,7 +7,7 @@ SECTIONS
     . = 1M;
 
     .text : {
-        *(.multiboot)
+        build/core/kentry.o(.text) /* entry stub */
         *(.text)
     }
 
