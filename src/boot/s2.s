@@ -16,6 +16,9 @@
 ; store VESA info for kernel
 %define VESA_INFO_o 0x0510
 
+; kernel size
+%define KERNEL_SIZE 32768
+
 ; beginning of stage 2
 s2_start:
     ; re-setup segments
@@ -394,12 +397,12 @@ gdtr:
 ; data for disk packet to load kernel from disk
 align 4
 disk_packet:
-    db 0x10     ; size of the packet
-    db 0        ; reserved (must be 0)
-    dw 1        ; sectors to read
-    dw 0x0000   ; offset
-    dw 0x1000   ; segment
-    dq 7        ; start LBA sector to read from
+    db 0x10                     ; size of the packet
+    db 0                        ; reserved (must be 0)
+    dw KERNEL_SIZE / 512        ; sectors to read
+    dw 0x0000                   ; offset
+    dw 0x1000                   ; segment
+    dq 7                        ; start LBA sector to read from
 
 
 ; pad to 2560 bytes (5 sectors, each sector 512 bytes)

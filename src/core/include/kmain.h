@@ -1,7 +1,11 @@
 #ifndef KMAIN
 #define KMAIN
 
+// std includes
 #include<stdint.h>
+
+// local includes
+#include "gdt.h"
 
 /* All information gotten from bootloader */
 typedef struct vesa_info {
@@ -13,12 +17,5 @@ typedef struct vesa_info {
 
 // known address (physical 0x0510)
 #define VESA_INFO ((vesa_info_t*)0x0510)
-
-
-/* GDT descriptor */
-struct gdt_descriptor {
-    uint16_t limit;
-    uint32_t base;
-} __attribute__((packed));
 
 #endif

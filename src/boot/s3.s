@@ -8,6 +8,8 @@
 [BITS 32]
 [ORG 0x8800]
 
+%define KERNEL_SIZE 32768
+
 s3_start:
     mov ax, 0x10    ; data segment in GDT is at 0x10
     mov ds, ax
@@ -20,9 +22,9 @@ s3_start:
     mov esp, 0x9000
 
     ; prep kernel
-    mov esi, 0x10000    ; from (0x1000:0x0000)
-    mov edi, 0x100000   ; to 1MB
-    mov ecx, 512        ; size (for now only 1 sector)
+    mov esi, 0x10000                ; from (0x1000:0x0000)
+    mov edi, 0x100000               ; to 1MB
+    mov ecx, KERNEL_SIZE            ; size (for now only 1 sector)
     rep movsb
 
     ; far jump to kernel

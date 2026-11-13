@@ -28,10 +28,13 @@ HSRC := $(shell find $(SRC) -type f -name "*.h")
 BOOT_SSRC := $(shell find $(SRC)/boot -type f -name "*.s")
 CORE_SSRC := $(shell find $(SRC)/core -type f -name "*.s")
 
-# Source files to object/binary files
+# source files to object/binary files
 COBJS := $(CSRC:$(SRC)/%.c=$(BUILD)/%.o)
 CORE_OBJS := $(CORE_SSRC:$(SRC)/%.s=$(BUILD)/%.o)
 BOOT_OBJS := $(BOOT_SSRC:$(SRC)/boot/%.s=$(BUILD)/boot/%.bin)
+
+# kernel specs
+KERNEL_SIZE = 32768
 
 # commands
 .PHONY: all run clean
@@ -41,6 +44,8 @@ all: $(IMG)
 # generate binary from kernel elf
 ${BUILD}/kernel.bin: $(ELF)
 	objcopy -O binary $< $@
+	@test $$(stat -c %s $@) -le $(KERNEL_SIZE) || (echo "Kernel size exceeds $(KERNEL_SIZE) bytes"; exit 1)
+	truncate -s $(KERNEL_SIZE) $@
 
 # kernel with linker.ld (includes C objects and kernel assembly entry)
 $(ELF): $(COBJS) $(CORE_OBJS) linker.ld
@@ -70,6 +75,10 @@ $(BUILD)/boot/%.bin: $(SRC)/boot/%.s
 # run command (with qemu)
 run: $(IMG)
 	qemu-system-i386 -drive format=raw,file=$(IMG)
+
+# run with debug
+debug: $(IMG)
+	qemu-system-i386 -drive format=raw,file=$(IMG) --debugcon stdio
 
 # clean
 clean:

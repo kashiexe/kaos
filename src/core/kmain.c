@@ -1,8 +1,13 @@
 #include "include/kmain.h"
 
 void kmain() {
-    vesa_info_t* vesa_info = VESA_INFO;
+    // setup GDT and tss
+    uint64_t gdt[6];
+    tss_entry_t tss = {};
+    setup_gdt(gdt, &tss);
 
+    // draw line
+    vesa_info_t* vesa_info = VESA_INFO;
     volatile unsigned int* screen = (volatile unsigned int*)vesa_info->addr;
 
     // green dot at 100, 100 for testing purposes
