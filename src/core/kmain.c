@@ -6,6 +6,8 @@ void kmain() {
     tss_entry_t tss = {};
     setup_gdt(gdt, &tss);
 
+    // setup LDT
+
     // draw line
     vesa_info_t* vesa_info = VESA_INFO;
     volatile unsigned int* screen = (volatile unsigned int*)vesa_info->addr;

@@ -16,6 +16,15 @@
 ; store VESA info for kernel
 %define VESA_INFO_o 0x0510
 
+; stores E820 mmap for kernel
+; (some padding for safety, in case I decide to add more vesa info in the future)
+%define mmap_entry_amt 0x0540
+%define mmap_entry_size 0x0550
+%define mmap_o 0x0560
+
+; stores EDID
+%define EDID_o 0x6900
+
 ; kernel size
 %define KERNEL_SIZE 32768
 
@@ -25,6 +34,14 @@ s2_start:
     xor ax, ax
     mov ds, ax
     mov es, ax
+
+    ; immediately get the E820 mmap from BIOS and store it in [mmap_o]
+    mov si, mmap_msg
+    call print_string
+    call get_mmap
+
+    ; get EDID block 
+    call get_edid
 
     ; enable A20 (if needed)
     call enable_a20
@@ -254,8 +271,47 @@ a20_inth15:
 .ns:
     ret
 
+; get EDID block
+get_edid:
+    ; get EDID block through int 0x10
+    mov ax, 0x4F15
+    xor bx, bx
+    xor cx, cx          ; primary controller
+    mov es, bx          ; required by VESA
+    xor di, di
+    int 0x10
 
-; LFB
+    ; is not supported?
+    cmp ax, 0x004F
+    jne .unsupported
+
+    ; read EDID block from es:di to [EDID_o]
+    mov ax, 0x4F15
+    mov bx, 1
+    xor cx, cx
+    xor dx, dx          ; block 0
+    mov di, EDID_o
+    int 0x10
+
+    ; check if failed
+    cmp ax, 0x004F
+    jne .failed
+
+    mov si, edid_msg
+    call print_string
+    ret
+
+.unsupported:
+    mov si, edid_unsupported_msg
+    call print_string
+    ret
+
+.failed:
+    mov si, edid_failed_msg
+    call print_string
+    ret
+
+; LFB initialization
 lfb_init:
     push bp
     mov bp, sp
@@ -363,6 +419,51 @@ find_vbe_mode:
     stc
     ret
 
+
+; get memory map for kernel (E820)
+get_mmap:
+    ; save address to store the memory map
+    mov di, mmap_o
+
+    ; ebx at 0 for first entry and bp is the entry counter
+    xor ebx, ebx
+    xor bp, bp
+
+.next:
+    ; reload ax every interation 
+    mov ax, 0xE820
+    mov edx, 0x534D4150
+    mov ecx, 24             ; ACPI 3.X says that the buffer size should be 24 bytes
+    int 0x15
+
+    ; error/end of list check
+    jc .done
+
+    ; BIOS must return signature "SMAP" in eax
+    cmp eax, 0x534D4150
+    jne .done
+
+    ; some BIOSes return less than 24 bytes
+    test ecx, ecx
+    jz .skip
+
+    ; increment entry counter and add the actual size of the entry to di
+    inc bp
+    add di, cx
+    mov [mmap_entry_size], cx
+
+.skip:
+    ; if ebx is 0, that means it's the last entry
+    test ebx, ebx
+    jnz .next
+
+.done:
+    ; save number of entries, print done message and return
+    mov [mmap_entry_amt], bp
+    mov si, mmap_done_msg
+    call print_string
+    ret
+
 ; --- Utilities ---
 
 ; prints string at si until null terminator
@@ -379,10 +480,15 @@ print_string:
     ret
 
 ; --- Messages & data ---
+mmap_msg db "[Bootloader] Retrieving memory map through E820...", 10, 13, 0
+mmap_done_msg db "[Bootloader] Memory map retrieved.", 10, 13, 0
 a20_enabled_msg db "[Bootloader] A20 line enabled.", 10, 13, 0
 a20_activating_msg db "[Bootloader] Activating A20 line...", 10, 13, 0
 a20_failed_msg db "[Bootloader] Failed to enable A20 line.", 10, 13, 0
 disk_error_msg db "[Bootloader] Error reading disk.", 10, 13, 0
+edid_msg db "[Bootloader] Got EDID block.", 10, 13, 0
+edid_unsupported_msg db "[Bootloader] EDID not supported.", 10, 13, 0
+edid_failed_msg db "[Bootloader] Failed to get EDID block.", 10, 13, 0
 vesa_failed db "[Bootloader] Failed to set VBE mode.", 10, 13, 0
 
 vbe_mode dw 0
