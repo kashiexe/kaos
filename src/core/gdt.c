@@ -71,17 +71,6 @@ void setup_gdt(uint64_t* gdt, tss_entry_t* tss) {
         .base = (uint32_t)gdt
     };
 
-    // load and flush segments
-    __asm__ volatile(
-        "lgdt (%0)\n"
-        "mov $0x10, %%ax\n" // load the data segment selector (0x10) into ax
-        "mov %%ax, %%ds\n"
-        "mov %%ax, %%es\n"
-        "mov %%ax, %%fs\n"
-        "mov %%ax, %%gs\n"
-        "mov %%ax, %%ss\n"
-        "ljmp $0x08, $.next\n" // load the code segment selector
-        ".next:\n"
-        : : "r"(&gdtr) : "ax", "memory"
-    );
+    // load gdtr
+    __asm__ volatile("lgdt (%0)\n" : : "r"(&gdtr));
 }
