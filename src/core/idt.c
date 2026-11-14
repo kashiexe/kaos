@@ -15,6 +15,7 @@ extern void debugexc(void);
 extern void nmi(void);
 extern void breakpoint(void);
 extern void overflow(void);
+extern void bound_range(void);
 
 /**
  * helper to create an IDT entry with the given parameters
@@ -41,6 +42,7 @@ void setup_idt(uint64_t* idt, idtr_t* idtr) {
     idt[2] = create_idt_entry((uint32_t)(&nmi), 0x08, interrupt(0, false));
     idt[3] = create_idt_entry((uint32_t)(&breakpoint), 0x18, interrupt(3, false));
     idt[4] = create_idt_entry((uint32_t)(&overflow), 0x18, interrupt(3, false));
+    idt[5] = create_idt_entry((uint32_t)(&bound_range), 0x08, interrupt(0, false));
 
     // load it
     // __asm__ volatile("lidt %0" : : "m" (*idtr));

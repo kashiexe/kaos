@@ -16,6 +16,9 @@
 ; store VESA info for kernel
 %define VESA_INFO_o 0x0510
 
+; store availability of certain features (like CPUID) for kernel
+%define CPUID_AVAILABLE 0x0530
+
 ; stores E820 mmap for kernel
 ; (some padding for safety, in case I decide to add more vesa info in the future)
 %define mmap_entry_amt 0x0540
@@ -42,6 +45,9 @@ s2_start:
 
     ; get EDID block 
     call get_edid
+
+    ; check if CPUID instruction is available
+    call check_cpuid
 
     ; enable A20 (if needed)
     call enable_a20
@@ -462,6 +468,30 @@ get_mmap:
     mov [mmap_entry_amt], bp
     mov si, mmap_done_msg
     call print_string
+    ret
+
+
+; check if CPUID instruction is available
+check_cpuid:
+    ; test ID bit at 0x200000 of EFLAGS register
+    pushfd
+    pushfd
+    xor dword [esp], 0x200000
+    popfd
+    pushfd
+    pop eax
+    xor eax, [esp]
+    popfd
+    and eax, 0x200000
+    jz .not_available
+
+    ; available so set the byte at [CPUID_AVAILABLE] to 1
+    mov byte [CPUID_AVAILABLE], 1
+    ret
+
+; cpuid not available
+.not_available:
+    mov byte [CPUID_AVAILABLE], 0
     ret
 
 ; --- Utilities ---

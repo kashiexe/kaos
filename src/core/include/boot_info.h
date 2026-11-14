@@ -60,6 +60,9 @@ typedef struct edid {
 // VESA information pointer
 #define VESA_INFO ((vesa_info_t*)0x0510)
 
+// CPUID availability pointer
+#define CPUID_AVAILABLE ((uint8_t*)0x0530)
+
 // mmap table pointer
 #define MMAP_ENTRY_AMT ((uint32_t*)0x0540)
 #define MMAP_ENTRY_SIZE ((uint32_t*)0x0550)

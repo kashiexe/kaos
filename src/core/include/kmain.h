@@ -8,5 +8,6 @@
 #include "gdt.h"
 #include "idt.h"
 #include "boot_info.h"
+#include "pic.h"
 
 #endif
