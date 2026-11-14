@@ -1,4 +1,3 @@
-# KAOS
 ![KAOS Banner](assets/kaos_banner.png)
 
 KAOS is yet another 32-bit microkernel Operating System written from scratch. It is currently in it's early stages.
