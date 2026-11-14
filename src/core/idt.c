@@ -11,6 +11,10 @@
 list of all isrs
 */
 extern void diverr(void);
+extern void debugexc(void);
+extern void nmi(void);
+extern void breakpoint(void);
+extern void overflow(void);
 
 /**
  * helper to create an IDT entry with the given parameters
@@ -30,6 +34,14 @@ uint64_t create_idt_entry(uint32_t offset, uint16_t selector, uint8_t type) {
 /**
  * actually sets up the IDT by populating it and then loading it into the IDTR
  */
-void setup_idt(uint64_t* idt) {
-    
+void setup_idt(uint64_t* idt, idtr_t* idtr) {
+    // populate the IDT with the appropriate entries
+    idt[0] = create_idt_entry((uint32_t)(&diverr), 0x08, interrupt(0, false));
+    idt[1] = create_idt_entry((uint32_t)(&debugexc), 0x08, interrupt(0, false));
+    idt[2] = create_idt_entry((uint32_t)(&nmi), 0x08, interrupt(0, false));
+    idt[3] = create_idt_entry((uint32_t)(&breakpoint), 0x18, interrupt(3, false));
+    idt[4] = create_idt_entry((uint32_t)(&overflow), 0x18, interrupt(3, false));
+
+    // load it
+    // __asm__ volatile("lidt %0" : : "m" (*idtr));
 }

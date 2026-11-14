@@ -19,7 +19,8 @@ void kmain() {
 
     // setup IDT
     uint64_t idt[256];
-    setup_idt(idt);
+    idtr_t idtr = {sizeof(idt) - 1, (uint32_t)idt};
+    setup_idt(idt, &idtr);
 
     // draw line
     vesa_info_t* vesa_info = VESA_INFO;
