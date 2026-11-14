@@ -1,3 +1,14 @@
+/*
+    =========== Kernel Main Function ===========
+
+    This is the main function of the kernel. 
+    - It coordinates the essential setups
+    - It sets up all necessary components
+    - Initializes the kernel's main loop (essential for services and tasks)
+    among other things.
+
+    ============================================
+*/
 #include "include/kmain.h"
 
 void kmain() {
@@ -6,7 +17,9 @@ void kmain() {
     tss_entry_t tss = {};
     setup_gdt(gdt, &tss);
 
-    // setup LDT
+    // setup IDT
+    uint64_t idt[256];
+    setup_idt(idt);
 
     // draw line
     vesa_info_t* vesa_info = VESA_INFO;
