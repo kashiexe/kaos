@@ -56,7 +56,7 @@ The makefile also features a `debug` command, although this is not very useful f
 
 ## Project Structure 📁
 
-> ![WARNING]
+> [!WARNING]
 > Please keep in mind this section is edited __MANUALLY__, so it might not be fully up-to-date.
 
 Quick overview (with comments) of the project's folders:
