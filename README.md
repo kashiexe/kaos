@@ -19,7 +19,7 @@ Since KAOS is still in an early alpha phase, there are lots of things on the tod
 
 ## Build & Run
 
-To build or run kaos, you need to follow a few steps described below. **However**, please check the [requirements](#requirements) section first.
+Before building and running kaos, please check the [requirements](#requirements) section below.
 
 ### Requirements
 
