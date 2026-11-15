@@ -24,5 +24,6 @@
 #include "idt.h"
 #include "boot_info.h"
 #include "pic.h"
+#include "../../mm/include/pmm.h"
 
 #endif

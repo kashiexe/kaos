@@ -1,0 +1,39 @@
+/*
+    Copyright 2026 Kashi
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    =========== pmm.h ===========
+
+    Exposed C functions for the PMM to be used in the kernel's C code.
+
+    =============================
+*/
+#ifndef PMM_H
+#define PMM_H
+
+#include<stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    void pmm_init();
+    void* pmm_alloc();
+    void pmm_free(void* ptr);
+    uint64_t pmm_get_total_memory();
+    uint64_t pmm_get_used_memory();
+#ifdef __cplusplus
+}
+#endif
+
+#endif

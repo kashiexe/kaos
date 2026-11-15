@@ -47,7 +47,6 @@ static idtr_t idtr;
 
 void kmain() {
     // setup GDT and tss
-    static uint64_t gdt[6];
     tss_entry_t tss = {};
     setup_gdt(gdt, &tss);
 
@@ -58,6 +57,9 @@ void kmain() {
     idtr.limit = sizeof(idt) - 1;
     idtr.base = (uint32_t)idt;
     setup_idt(idt, &idtr);
+
+    // initialize PMM
+    pmm_init();
 
     // draw line
     vesa_info_t* vesa_info = VESA_INFO;

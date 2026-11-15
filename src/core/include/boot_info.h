@@ -79,11 +79,21 @@ typedef struct edid {
 #define CPUID_AVAILABLE ((uint8_t*)0x0530)
 
 // mmap table pointer
-#define MMAP_ENTRY_AMT ((uint32_t*)0x0540)
+
+// this is the amount of entries mmap has
+#define MMAP_ENTRY_AMT ((uint16_t*)0x0540)
+// size of a single entry
 #define MMAP_ENTRY_SIZE ((uint32_t*)0x0550)
+// table itself
 #define MMAP_TABLE ((mmap_entry_t*)0x0560)
 
 // EDID pointer
 #define EDID ((edid_t*)0x6900)
+
+// other constants
+#define KERNEL_BASE 0x100000                    // 1MB
+#define KERNEL_SIZE 0x8000                      // 32KB
+#define KERNEL_END (KERNEL_BASE + KERNEL_SIZE)  // kernel base + kernel size
+#define MAX_MEM     0x100000000ULL              // 4GB
 
 #endif

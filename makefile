@@ -7,12 +7,14 @@
 
 # tools
 CC = gcc
+CXX = g++
 LD = ld
 NASM = nasm
 
 # flags
 CCFLAGS = -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -nostdlib -Wall -Wextra -Isrc -I./src/libc/include
 LDFLAGS = -m elf_i386 -T linker.ld
+CXXFLAGS = -m32 -std=c++20 -O2 -mno-sse -mno-mmx -ffreestanding -fno-pic -fno-pie -fno-stack-protector -fno-exceptions -fno-rtti -fno-use-cxa-atexit -fno-threadsafe-statics -Isrc -I./src/libc/include
 
 # dirs and targets
 SRC = src
@@ -22,7 +24,9 @@ IMG = ${BUILD}/kaos.img
 
 # file snatch commands
 CSRC := $(shell find $(SRC) -type f -name "*.c")
+CXXSRC := $(shell find $(SRC) -type f -name "*.cc")
 HSRC := $(shell find $(SRC) -type f -name "*.h")
+HXXSRC := $(shell find $(SRC) -type f -name "*.hh")
 
 # separate bootloader and core assembly files
 BOOT_SSRC := $(shell find $(SRC)/boot -type f -name "*.s")
@@ -30,6 +34,7 @@ CORE_SSRC := $(shell find $(SRC)/core -type f -name "*.s")
 
 # source files to object/binary files
 COBJS := $(CSRC:$(SRC)/%.c=$(BUILD)/%.o)
+CXXOBJS := $(CXXSRC:$(SRC)/%.cc=$(BUILD)/%.o)
 CORE_OBJS := $(CORE_SSRC:$(SRC)/%.s=$(BUILD)/%.o)
 BOOT_OBJS := $(BOOT_SSRC:$(SRC)/boot/%.s=$(BUILD)/boot/%.bin)
 
@@ -48,9 +53,9 @@ ${BUILD}/kernel.bin: $(ELF)
 	truncate -s $(KERNEL_SIZE) $@
 
 # kernel with linker.ld (includes C objects and kernel assembly entry)
-$(ELF): $(COBJS) $(CORE_OBJS) linker.ld
+$(ELF): $(COBJS) $(CORE_OBJS) $(CXXOBJS) linker.ld
 	@mkdir -p $(dir $@)
-	$(LD) $(LDFLAGS) -o $@ $(COBJS) $(CORE_OBJS)
+	$(LD) $(LDFLAGS) -o $@ $(COBJS) $(CORE_OBJS) $(CXXOBJS)
 
 # final img
 $(IMG): $(ELF) $(BOOT_OBJS) ${BUILD}/kernel.bin
@@ -61,6 +66,11 @@ $(IMG): $(ELF) $(BOOT_OBJS) ${BUILD}/kernel.bin
 $(BUILD)/%.o: $(SRC)/%.c $(HSRC)
 	@mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) -c $< -o $@
+
+# build c++ files
+$(BUILD)/%.o: $(SRC)/%.cc $(HXXSRC)
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # build kernel assembly files (-f elf32 for linking)
 $(BUILD)/core/%.o: $(SRC)/core/%.s
