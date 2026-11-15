@@ -2,7 +2,7 @@
 
 KAOS is yet another 32-bit microkernel Operating System written from scratch. It is currently in it's early stages.
 
-## Progress 📋
+## Progress
 
 Since KAOS is still in an early alpha phase, there are lots of things on the todo list to help lift it off the ground, here are (some) major examples:
 - [x] Bootloader
@@ -16,7 +16,7 @@ Since KAOS is still in an early alpha phase, there are lots of things on the tod
 - [ ] Setup IPC
 > _These are broken down into small tasks_
 
-## Build & Run ⚙️
+## Build & Run
 
 Before building and running kaos, please check the [requirements](#requirements) section below.
 
@@ -54,7 +54,7 @@ make clean
 
 The makefile also features a `debug` command, although this is not very useful for now, this could become very valuable in the future.
 
-## Project Structure 📁
+## Project Structure
 
 > [!WARNING]
 > Please keep in mind this section is edited __MANUALLY__, so it might not be fully up-to-date.
@@ -74,11 +74,11 @@ kaos/
 # root files are mostly either config files, github specific repo files or files for building KAOS
 ```
 
-## Contributions 👥
+## Contributions
 
 Since KAOS is mostly a personal project, contributions will largely not be accepted. The respository is public purely for show :)
 
-## License 📝
+## License
 
 KAOS is licensed under the [Apache 2.0 license](LICENSE).
 
