@@ -30,6 +30,23 @@ void isr_handler(interrupt_frame_t* frame) {
     const uint8_t vector = frame->vector;
 
     switch(vector) {
+        case 0: {
+            // zero division exception
+            break;    
+        }
+
+        case 0x0D: {
+            // #GP
+
+            break;
+        }
+
+        case 0x0E: {
+            // #PF
+
+            break;
+        }
+
         default: {
             if(vector >= 32 && vector <= 47) {
                 if(vector >= 40) {

@@ -7,13 +7,13 @@ KAOS is yet another 32-bit microkernel Operating System written from scratch. It
 Since KAOS is still in an early alpha phase, there are lots of things on the todo list to help lift it off the ground, here are (some) major examples:
 - [x] Bootloader
 - [x] Early Initialization
-- [ ] IDT setup (including PIC remapping)
+- [x] IDT setup (including PIC remapping)
 - [ ] Setup paging & make a PMM 
-- [ ] Scheduler
-- [ ] Setup IPC
+- [ ] Chrono driver (clock)
 - [ ] Video driver (efficient management of the LFB)
 - [ ] Input driver (keyboard, mouse, other devices like that)
-- [ ] Chrono driver (clock)
+- [ ] Scheduler
+- [ ] Setup IPC
 > _These are broken down into small tasks_
 
 ## Build & Run ⚙️
