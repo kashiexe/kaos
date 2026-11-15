@@ -65,7 +65,7 @@ kaos/
 ├── assets/             # assets used throughout the project
 ├── src/
     ├── boot/           # contains the assembly code for the bootloader
-    ├── core/           # generally contains the most important setup for the kernel and utilities
+    ├── core/           # contains the code for most important kernel setups and utilities
         ├── include/    # header files
         ├── isrs/       # contains the wrappers and handlers for all interrupts in the IDT
         ├── utils/
@@ -76,7 +76,7 @@ kaos/
 
 ## Contributions 👥
 
-As KAOS is mostly a personal project, contributions will largely not be accepted. The respository is public purely for show :)
+Since KAOS is mostly a personal project, contributions will largely not be accepted. The respository is public purely for show :)
 
 ## License 📝
 

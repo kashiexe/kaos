@@ -23,6 +23,7 @@
 [GLOBAL outb]
 [GLOBAL io_wait]
 
+; uint8_t inb(uint16_t port)
 ; [esp + 8] -> port
 inb:
     push ebp
@@ -34,6 +35,7 @@ inb:
     pop ebp
     ret
 
+; void outb(uint16_t port, uint8_t value)
 ; [esp + 8] -> port
 ; [esp + 12] -> value
 outb:

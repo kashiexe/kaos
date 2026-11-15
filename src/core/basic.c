@@ -214,11 +214,28 @@ void print_num(volatile unsigned int* screen, const uint16_t pitch, int num) {
         0b00000000,
     };
 
-    // go through each digit in num and print it to the screen (white color as default)
-    int digit;
-    for(int i = 0; num > 0; i++) {
-        digit = num % 10;
+    // 0 wasn't being printed, so deliberately print if 0
+    if (num == 0) {
+        for(int y = 0; y < 16; y++) {
+            for(int x = 0; x < 8; x++) {
+                if (char0[y] & (1 << (7 - x))) {
+                    screen[(y * (pitch / 4)) + x] = 0xFFFFFF;
+                }
+            }
+        }
+        return;
+    }
+
+    // extract digits into an array
+    unsigned int digits[10];
+    unsigned int num_digits = 0;
+    while(num > 0) {
+        digits[num_digits++] = num % 10;
         num /= 10;
+    }
+
+    for(uint8_t i = 0; i < num_digits; i++) {
+        uint8_t digit = digits[num_digits - 1 - i]; // print in reverse order
 
         // which character bitmap to use
         uint8_t* char_bitmap = 0;
@@ -255,15 +272,15 @@ void print_num(volatile unsigned int* screen, const uint16_t pitch, int num) {
                 char_bitmap = (uint8_t*)char9;
                 break;
             default:
-                char_bitmap = (uint8_t*)char0;
+                char_bitmap = (uint8_t*)char0; // fallback to '0'
                 break;
         }
 
         // print digit to screen
         for(int y = 0; y < 16; y++) {
-            for(int x = 0 * i; x < 8 * i; x++) {
+            for(int x = 0; x < 8; x++) {
                 if(char_bitmap[y] & (1 << (7 - x))) {
-                    screen[(y * (pitch / 4)) + (x + (i * 8))] = 0xFFFFFF;
+                    screen[(y * (pitch / 4)) + (x + (i * 8))] = 0xFFFFFF; // white color
                 }
             }
         }

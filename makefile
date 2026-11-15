@@ -78,7 +78,7 @@ run: $(IMG)
 
 # run with debug
 debug: $(IMG)
-	qemu-system-i386 -drive format=raw,file=$(IMG) --debugcon stdio
+	qemu-system-i386 -drive format=raw,file=$(IMG) --monitor stdio -d int,cpu_reset
 
 # clean
 clean:

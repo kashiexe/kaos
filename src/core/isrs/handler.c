@@ -13,19 +13,37 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    =========== ISR : DEBUG EXCEPTION ===========
+    =========== ISR : Common Handler ===========
 
-    Contains the code for the debug exception interrupt handler (interrupt 0x01)
+    Contains the code for the common interrupt handler.
 
-    =============================================
+    ============================================
 */
 #include "../include/basic.h"
 #include "../include/boot_info.h"
+#include "../include/idt.h"
+#include "../include/pic.h"
 
-void debugexc_handler() {
-    __asm__ volatile("cli"); // disable interrupts
+extern void outb(uint16_t port, uint8_t value);
+
+void isr_handler(interrupt_frame_t* frame) {
+    const uint8_t vector = frame->vector;
+
+    switch(vector) {
+        default: {
+            if(vector >= 32 && vector <= 47) {
+                if(vector >= 40) {
+                    // send slave PIC EOI
+                    outb(pic2_cmd, pic1_cmd);
+                }
+
+                // master PIC EOI
+                outb(pic1_cmd, pic1_cmd);
+            }
+        }
+    }
 
     volatile vesa_info_t* vesa = VESA_INFO;
     volatile uint32_t* screen = (volatile uint32_t*)vesa->addr;
-    print_num(screen, vesa->pitch, 1);
+    print_num(screen, vesa->pitch, frame->vector);
 }

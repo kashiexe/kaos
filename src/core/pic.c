@@ -30,10 +30,6 @@ extern void io_wait();
  * this function handles the PIC remapping
  */
 void remap_pic() {
-    // save masks
-    unsigned char a1 = inb(pic1_data);
-    unsigned char a2 = inb(pic2_data);
-
     // initialization sequence
     outb(pic1_cmd, icw1_init | icw1_icw4);
     io_wait();
@@ -58,7 +54,7 @@ void remap_pic() {
     outb(pic2_data, 0x01);
     io_wait();
 
-    // restore saved masks
-    outb(pic1_data, a1);
-    outb(pic2_data, a2);
+    // unmask all interrupts (restore saved masks)
+    outb(pic1_data, 0x00);
+    outb(pic2_data, 0x00);
 }

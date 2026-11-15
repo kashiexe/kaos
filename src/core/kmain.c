@@ -38,9 +38,16 @@ typedef struct star {
     _Bool going_up;
 } star_t;
 
+/**
+ * fixed lifetime issues with IDT, GDT, ... by making them static
+ */
+static uint64_t gdt[6];
+static uint64_t idt[256];
+static idtr_t idtr;
+
 void kmain() {
     // setup GDT and tss
-    uint64_t gdt[6];
+    static uint64_t gdt[6];
     tss_entry_t tss = {};
     setup_gdt(gdt, &tss);
 
@@ -48,8 +55,8 @@ void kmain() {
     remap_pic();
 
     // setup IDT
-    uint64_t idt[256];
-    idtr_t idtr = {sizeof(idt) - 1, (uint32_t)(&idt)};
+    idtr.limit = sizeof(idt) - 1;
+    idtr.base = (uint32_t)idt;
     setup_idt(idt, &idtr);
 
     // draw line
@@ -88,11 +95,12 @@ void kmain() {
 
     // move stars
     unsigned int tick = 0;
+    const unsigned int frame = 5000000;
     while(1) {
         tick++;
 
         // new direction every 3 frames
-        if(tick % 30000000 == 0) {
+        if(tick % (frame * 3) == 0) {
             for(int i = 0; i < amt; i++) {
                 // move up or down (up if rand is even)
                 if(rand(10, cpuid_available) % 2 == 0) {
@@ -104,7 +112,7 @@ void kmain() {
         }
 
         // 1 frame every 10 million ticks
-        if(tick % 10000000 == 0) {
+        if(tick % frame == 0) {
             for(int i = 0; i < amt; i++) {
                 // erase the star
                 for(int y = 0; y < stars[i].size; y++) {

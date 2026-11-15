@@ -78,6 +78,36 @@ typedef struct idtr {
     uint32_t base;
 } __attribute__((packed)) idtr_t;
 
+/**
+ * interrupt frame structure
+ */
+typedef struct interrupt_frame {
+    // segment registers (for future ring 3 interrupts)
+    uint32_t gs;
+    uint32_t fs;
+    uint32_t es;
+    uint32_t ds;
+
+    // pusha
+    uint32_t edi;
+    uint32_t esi;
+    uint32_t ebp;
+    uint32_t esp;
+    uint32_t ebx;
+    uint32_t edx;
+    uint32_t ecx;
+    uint32_t eax;
+
+    // pushed by the wrapper
+    uint32_t vector;
+    uint32_t error_code;
+
+    // pushed by the CPU
+    uint32_t eip;
+    uint32_t cs;
+    uint32_t eflags;
+} interrupt_frame_t;
+
 uint64_t create_idt_entry(uint32_t offset, uint16_t selector, uint8_t type);
 void setup_idt(uint64_t* idt, idtr_t* idtr);
 
