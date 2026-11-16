@@ -152,6 +152,29 @@ uint64_t pmm::get_used_memory() {
 }
 
 /**
+ * helper to set a memory region to a specific value
+ */
+void pmm::memset(void* ptr, uint8_t value, size_t size) {
+    // check if size can be divided into full chunks, and if so, zero out in chunks until the modulo
+    uint8_t* byte_ptr = reinterpret_cast<uint8_t*>(ptr);
+    size_t full_chunks = size / sizeof(uint32_t);
+    size_t remaining_bytes = size % sizeof(uint32_t);
+
+    // zero out full chunks (easier than byte by byte)
+    auto* word_ptr = reinterpret_cast<uint32_t*>(ptr);
+    const auto chunk = static_cast<uint32_t>(value) * 0x01010101U;
+
+    for(size_t i = 0; i < full_chunks; i++) {
+        word_ptr[i] = chunk;
+    }
+
+    // zero out remaining bytes
+    for(size_t i = 0; i < remaining_bytes; i++) {
+        byte_ptr[full_chunks * sizeof(uint32_t) + i] = 0;
+    }
+}
+
+/**
  * these are just the original functions' wrappers for the C side of the kernel to use
  */
 extern "C" {

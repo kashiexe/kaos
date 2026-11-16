@@ -14,7 +14,7 @@ NASM = nasm
 # flags
 CCFLAGS = -m32 -ffreestanding -fno-pie -fno-stack-protector -fno-builtin -nostdlib -Wall -Wextra -Isrc -I./src/libc/include
 LDFLAGS = -m elf_i386 -T linker.ld
-CXXFLAGS = -m32 -std=c++20 -O2 -mno-sse -mno-mmx -ffreestanding -fno-pic -fno-pie -fno-stack-protector -fno-exceptions -fno-rtti -fno-use-cxa-atexit -fno-threadsafe-statics -Isrc -I./src/libc/include
+CXXFLAGS = -m32 -std=c++20 -O2 -mno-sse -mno-mmx -ffreestanding -fno-strict-aliasing -fno-pic -fno-pie -fno-stack-protector -fno-exceptions -fno-rtti -fno-use-cxa-atexit -fno-threadsafe-statics -fno-tree-loop-distribute-patterns -Isrc -I./src/libc/include
 
 # dirs and targets
 SRC = src

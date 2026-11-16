@@ -45,6 +45,7 @@ namespace kaos {
         // utility functions
         uint64_t get_total_memory();
         uint64_t get_used_memory();
+        void memset(void* ptr, uint8_t value, size_t size);
     }
 }
 

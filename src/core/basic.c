@@ -20,6 +20,9 @@
     =============================
 */
 #include "include/basic.h"
+#include "include/boot_info.h"
+
+static uint32_t y_pos = 0;
 
 void print_num(volatile unsigned int* screen, const uint16_t pitch, int num) {
     // bitmap array
@@ -277,12 +280,18 @@ void print_num(volatile unsigned int* screen, const uint16_t pitch, int num) {
         }
 
         // print digit to screen
-        for(int y = 0; y < 16; y++) {
+        for(int y = y_pos; y < y_pos + 16; y++) {
             for(int x = 0; x < 8; x++) {
                 if(char_bitmap[y] & (1 << (7 - x))) {
                     screen[(y * (pitch / 4)) + (x + (i * 8))] = 0xFFFFFF; // white color
                 }
             }
         }
+    }
+
+    // move down for next number
+    y_pos += 16;
+    if(y_pos >= ((volatile vesa_info_t*)VESA_INFO)->height) {
+        y_pos = 0;
     }
 }
