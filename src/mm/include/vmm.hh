@@ -33,37 +33,19 @@
 
 namespace kaos {
     namespace vmm {
-        typedef enum pde_flags {
-            P = 0x1,            // present
-            W = 0x2,            // writable
-            U = 0x4,            // user/kernel
-            PWT = 0x8,          // write through
-            PCD = 0x10,         // cache disabled
-            A = 0x20,           // accessed
-            D = 0x40,           // dirty
-            PS = 0x80,          // page size
-            G = 0x100           // global
-        } pde_flags_t;
-
-        typedef enum pte_flags {
-            PTE_P = 0x1,        // present
-            PTE_W = 0x2,        // writable
-            PTE_U = 0x4,        // user/kernel
-            PTE_PWT = 0x8,      // write through
-            PTE_PCD = 0x10,     // cache disabled
-            PTE_A = 0x20,       // accessed
-            PTE_D = 0x40,       // dirty
-            PTE_PAT = 0x80,     // page attribute table
-            PTE_G = 0x100       // global
-        } pte_flags_t;
-
         // methods
-
         void init();
+        void identity_map(uint32_t start, uint32_t end, uint32_t flags);
+        void map(uint32_t vaddr, uint32_t paddr, uint32_t flags);
+        void map4m(uint32_t vaddr, uint32_t paddr, uint32_t flags);
+        void unmap(uint32_t vaddr);
+
+        // utilities
+        uint32_t get_paddr(uint32_t vaddr);
         uint32_t* get_page_directory();
         void set_page_directory(uint32_t pd);
-        void identity_map(uint32_t start, uint32_t end, uint32_t flags);
         void enable_paging();
+        void flush_tlb(uint32_t vaddr);
     }
 }
 

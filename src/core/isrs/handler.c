@@ -28,39 +28,46 @@ extern void outb(uint16_t port, uint8_t value);
 
 void isr_handler(interrupt_frame_t* frame) {
     const uint8_t vector = frame->vector;
+    volatile vesa_info_t* vesa = VESA_INFO;
+    volatile uint32_t* screen = (volatile uint32_t*)vesa->addr;
 
     switch(vector) {
         case 0: {
             // zero division exception
+            print_num(screen, vesa->pitch, frame->vector);
             break;    
         }
 
         case 0x0D: {
             // #GP
-
+            print_num(screen, vesa->pitch, frame->vector);
             break;
         }
 
         case 0x0E: {
             // #PF
-
+            print_num(screen, vesa->pitch, frame->vector);
             break;
         }
 
         default: {
+            // kb
+            if(vector == 0x21) {
+                // read scancode
+                uint8_t scancode = 0;
+                asm volatile("inb %1, %0" : "=a"(scancode) : "Nd"(0x60));
+                print_num(screen, vesa->pitch, scancode);
+            }
+
             if(vector >= 32 && vector <= 47) {
                 if(vector >= 40) {
                     // send slave PIC EOI
-                    outb(pic2_cmd, pic1_cmd);
+                    outb(pic2_cmd, pic_eoi);
                 }
 
                 // master PIC EOI
-                outb(pic1_cmd, pic1_cmd);
+                outb(pic1_cmd, pic_eoi);
             }
         }
     }
-
-    volatile vesa_info_t* vesa = VESA_INFO;
-    volatile uint32_t* screen = (volatile uint32_t*)vesa->addr;
-    print_num(screen, vesa->pitch, frame->vector);
 }

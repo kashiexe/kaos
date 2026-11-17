@@ -220,11 +220,16 @@ void print_num(volatile unsigned int* screen, const uint16_t pitch, int num) {
     // 0 wasn't being printed, so deliberately print if 0
     if (num == 0) {
         for(int y = 0; y < 16; y++) {
+            uint16_t row = y_pos + y;
             for(int x = 0; x < 8; x++) {
                 if (char0[y] & (1 << (7 - x))) {
-                    screen[(y * (pitch / 4)) + x] = 0xFFFFFF;
+                    screen[(row * (pitch / 4)) + x] = 0xFFFFFF;
                 }
             }
+        }
+        y_pos += 16;
+        if(y_pos >= ((volatile vesa_info_t*)VESA_INFO)->height) {
+            y_pos = 0;
         }
         return;
     }
@@ -280,10 +285,11 @@ void print_num(volatile unsigned int* screen, const uint16_t pitch, int num) {
         }
 
         // print digit to screen
-        for(int y = y_pos; y < y_pos + 16; y++) {
+        for(int y = 0; y < 16; y++) {
+            uint16_t row = y_pos + y;
             for(int x = 0; x < 8; x++) {
                 if(char_bitmap[y] & (1 << (7 - x))) {
-                    screen[(y * (pitch / 4)) + (x + (i * 8))] = 0xFFFFFF; // white color
+                    screen[(row * (pitch / 4)) + (x + (i * 8))] = 0xFFFFFF; // white color
                 }
             }
         }
@@ -294,4 +300,15 @@ void print_num(volatile unsigned int* screen, const uint16_t pitch, int num) {
     if(y_pos >= ((volatile vesa_info_t*)VESA_INFO)->height) {
         y_pos = 0;
     }
+}
+
+/**
+ * future function to actually print a string using the font, for now its just a placeholder tho
+ */
+extern void* font_start;
+extern void* font_end;
+static uint32_t x_pos = 0;
+
+void easy_print(volatile unsigned int* screen, const uint16_t pitch, const char* str) {
+    
 }

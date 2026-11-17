@@ -25,5 +25,6 @@
 #include "boot_info.h"
 #include "pic.h"
 #include "../../mm/include/pmm.h"
+#include "../../mm/include/vmm.h"
 
 #endif

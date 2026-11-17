@@ -46,6 +46,10 @@ static uint64_t idt[256];
 static idtr_t idtr;
 
 void kmain() {
+    // draw line
+    vesa_info_t* vesa_info = VESA_INFO;
+    volatile unsigned int* screen = (volatile unsigned int*)vesa_info->addr;
+
     // setup GDT and tss
     tss_entry_t tss = {};
     setup_gdt(gdt, &tss);
@@ -61,9 +65,11 @@ void kmain() {
     // initialize PMM
     pmm_init();
 
-    // draw line
-    vesa_info_t* vesa_info = VESA_INFO;
-    volatile unsigned int* screen = (volatile unsigned int*)vesa_info->addr;
+    // initialize VMM and map to higher half of the kernel
+    vmm_init();
+    vmm_identity_map((uint32_t)screen, (uint32_t)screen + vesa_info->pitch * vesa_info->height, PTE_P | PTE_W | PTE_PCD | PTE_PAT);
+    vmm_flush_tlb((uint32_t)screen);
+    vmm_enable_paging();
 
     // all stars on the screen
     const int amt = 70;

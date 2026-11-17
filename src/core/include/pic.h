@@ -27,6 +27,9 @@
 #define icw1_icw4 0x01
 #define icw4_8086 0x01
 
+// other variables
+#define pic_eoi 0x20
+
 void remap_pic();
 
 #endif

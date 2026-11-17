@@ -22,5 +22,6 @@
  * extremely basic helper to print a number to the screen without a proper printf implementation or font
  */
 void print_num(volatile unsigned int* screen, const uint16_t pitch, int num);
+void easy_print(volatile unsigned int* screen, const uint16_t pitch, const char* str);
 
 #endif
