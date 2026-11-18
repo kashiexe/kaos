@@ -42,7 +42,6 @@ typedef struct mmap_entry {
     uint64_t base_addr;
     uint64_t length;
     mmap_type_t type;
-    uint32_t flags;
 } __attribute__((packed)) mmap_entry_t;
 
 // EDID
@@ -95,5 +94,10 @@ typedef struct edid {
 #define KERNEL_SIZE 0x8000                      // 32KB
 #define KERNEL_END (KERNEL_BASE + KERNEL_SIZE)  // kernel base + kernel size
 #define MAX_MEM     0x100000000ULL              // 4GB
+
+// utility
+static inline mmap_entry_t* mmap_at(uint16_t index) {
+    return ((mmap_entry_t*)((uint8_t*)MMAP_TABLE + index * (*MMAP_ENTRY_SIZE)));
+}
 
 #endif

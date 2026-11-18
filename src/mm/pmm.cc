@@ -47,10 +47,10 @@ void pmm::init() {
     uint64_t highest_addr = 0;
 
     for(uint16_t i = 0; i < *size; i++) {
-        const auto entry = mmap[i];
+        const auto* entry = mmap_at(i);
 
-        if(entry.type == USABLE) {
-            uint64_t end_addr = entry.base_addr + entry.length;
+        if(entry->type == USABLE) {
+            uint64_t end_addr = entry->base_addr + entry->length;
             if(end_addr > highest_addr) {
                 if(end_addr <= MAX_MEM) highest_addr = end_addr;
                 else highest_addr = MAX_MEM; // cap at MAX_MEM (4GB)
@@ -78,11 +78,11 @@ void pmm::init() {
 
     // go through mmap again but free the safe usable regions
     for(uint16_t i = 0; i < *size; i++) {
-        const auto entry = mmap[i];
+        const auto* entry = mmap_at(i);
 
-        if(entry.type == USABLE) {
-            const uint64_t start_addr = entry.base_addr;
-            const uint64_t end_addr = entry.base_addr + entry.length;
+        if(entry->type == USABLE) {
+            const uint64_t start_addr = entry->base_addr;
+            const uint64_t end_addr = entry->base_addr + entry->length;
 
             // calculate page indices
             uint32_t start_page = start_addr / PAGE_SIZE;
@@ -96,7 +96,8 @@ void pmm::init() {
     }
 
     // re-reserve known used regions (0 to end of bitmap are known reserved)
-    for(uint32_t page = 0; page < (bitmap_addr + bitmap_size) / PAGE_SIZE; page++) {
+    uint32_t reserved_pages = (bitmap_addr + bitmap_size + PAGE_SIZE - 1) / PAGE_SIZE;
+    for(uint32_t page = 0; page < reserved_pages; page++) {
         uint32_t page_index = page;
         bitmap[page_index / 32] |= (1 << (page_index % 32));
     }
@@ -170,7 +171,7 @@ void pmm::memset(void* ptr, uint8_t value, size_t size) {
 
     // zero out remaining bytes
     for(size_t i = 0; i < remaining_bytes; i++) {
-        byte_ptr[full_chunks * sizeof(uint32_t) + i] = 0;
+        byte_ptr[full_chunks * sizeof(uint32_t) + i] = value;
     }
 }
 

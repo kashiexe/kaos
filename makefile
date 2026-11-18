@@ -86,9 +86,14 @@ $(BUILD)/boot/%.bin: $(SRC)/boot/%.s
 run: $(IMG)
 	qemu-system-i386 -drive format=raw,file=$(IMG)
 
+
+
 # run with debug
 debug: $(IMG)
-	qemu-system-i386 -drive format=raw,file=$(IMG) --monitor stdio -d int,cpu_reset
+	qemu-system-i386 -drive format=raw,file=$(IMG) --monitor stdio -d int,cpu_reset -no-shutdown -no-reboot -D debug.log
+
+serial: $(IMG)
+	qemu-system-i386 -drive format=raw,file=$(IMG) -serial stdio -d int,cpu_reset -no-shutdown -no-reboot -D debug.log
 
 # clean
 clean:

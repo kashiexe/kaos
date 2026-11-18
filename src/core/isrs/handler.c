@@ -38,6 +38,16 @@ void isr_handler(interrupt_frame_t* frame) {
             break;    
         }
 
+        case 0x08: {
+            // #DF
+            
+
+            // halt
+            while(1) {
+                __asm__ volatile("hlt");
+            }
+        }
+
         case 0x0D: {
             // #GP
             print_num(screen, vesa->pitch, frame->vector);

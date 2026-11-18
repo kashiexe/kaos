@@ -31,6 +31,12 @@ void vmm::init() {
     // create the kernel's page directory
     uint32_t kpd = (uint32_t)(pmm::alloc_page());
 
+    if(!kpd) {
+        // no free pages available
+        __asm__ volatile("hlt");
+        return;
+    }
+
     // zero it
     pmm::memset(reinterpret_cast<void*>(kpd), 0, PAGE_SIZE);
 
@@ -55,17 +61,18 @@ void vmm::identity_map(uint32_t start, uint32_t end, uint32_t flags) {
         uint32_t pt_index = (addr >> 12) & 0x3FF;
 
         // check if the page table exists
-        if(!(pd[pd_index] & 0x1)) {
+        if(!(pd[pd_index] & P)) {
             // allocate a new page table
             uint32_t pt = (uint32_t)(pmm::alloc_page());
             pmm::memset(reinterpret_cast<void*>(pt), 0, PAGE_SIZE);
 
             // set the page directory entry
-            pd[pd_index] = pt | flags;
+            pd[pd_index] = pt | P | W;
         }
 
         // set the page table entry
-        reinterpret_cast<uint32_t*>(pd[pd_index] & ~0x3FF)[pt_index] = addr | flags;
+        auto* pt = reinterpret_cast<uint32_t*>(pd[pd_index] & 0xFFFFF000);
+        pt[pt_index] = (addr & 0xFFFFF000) | flags;
     }
 }
 

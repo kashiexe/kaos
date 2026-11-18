@@ -41,6 +41,7 @@ typedef struct star {
 /**
  * fixed lifetime issues with IDT, GDT, ... by making them static
  */
+static tss_entry_t tss = {};
 static uint64_t gdt[6];
 static uint64_t idt[256];
 static idtr_t idtr;
@@ -50,8 +51,10 @@ void kmain() {
     vesa_info_t* vesa_info = VESA_INFO;
     volatile unsigned int* screen = (volatile unsigned int*)vesa_info->addr;
 
+    // initialize serial port for debugging
+    serial_init();
+
     // setup GDT and tss
-    tss_entry_t tss = {};
     setup_gdt(gdt, &tss);
 
     // remap PIC
