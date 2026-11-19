@@ -27,5 +27,6 @@
 #include "serial.h"
 #include "../../mm/include/pmm.h"
 #include "../../mm/include/vmm.h"
+#include "../../mm/include/kheap.h"
 
 #endif

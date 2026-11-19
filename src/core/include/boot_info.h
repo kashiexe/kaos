@@ -41,7 +41,7 @@ typedef enum mmap_type {
 typedef struct mmap_entry {
     uint64_t base_addr;
     uint64_t length;
-    mmap_type_t type;
+    uint32_t type;
 } __attribute__((packed)) mmap_entry_t;
 
 // EDID

@@ -8,7 +8,7 @@ Since KAOS is still in an early alpha phase, there are lots of things on the tod
 - [x] Bootloader
 - [x] Early Initialization
 - [x] IDT setup (including PIC remapping)
-- [ ] Setup paging & make a PMM 
+- [ ] Memory Management (PMM,VMM,Kernel Heap) 
 - [ ] Chrono driver (clock)
 - [ ] Video driver (efficient management of the LFB)
 - [ ] Input driver (keyboard, mouse, other devices like that)
@@ -69,7 +69,7 @@ kaos/
         ├── include/    # header files
         ├── isrs/       # contains the wrappers and handlers for all interrupts in the IDT
         ├── utils/
-    ├── libc            # essential files for C and eventually C++
+    ├── mm              # holds all source code for the memory management 
         ├── include/ 
 # root files are mostly either config files, github specific repo files or files for building KAOS
 ```

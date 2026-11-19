@@ -49,6 +49,9 @@ void vmm::init() {
 
 /**
  * identity maps a range of virtual addresses to physical addresses
+ * @param start the starting virtual address
+ * @param end the ending virtual address
+ * @param flags the flags to set for the PTE
  */
 void vmm::identity_map(uint32_t start, uint32_t end, uint32_t flags) {
     // get the page directory
@@ -78,6 +81,9 @@ void vmm::identity_map(uint32_t start, uint32_t end, uint32_t flags) {
 
 /**
  * maps a virtual address to a physical address with given flags
+ * @param vaddr the virtual address
+ * @param paddr the physical address
+ * @param flags the flags to set for the PTE
  */
 void vmm::map(uint32_t vaddr, uint32_t paddr, uint32_t flags) {
     // extract pd and pt indices
@@ -104,6 +110,13 @@ void vmm::map(uint32_t vaddr, uint32_t paddr, uint32_t flags) {
     flush_tlb(vaddr);
 }
 
+/**
+ * maps a virtual address to a big physical page (4MB) with given flags
+ * @param vaddr the virtual address
+ * @param paddr the physical address
+ * @param flags the flags to set for the PDE
+ * @note vaddr and paddr MUST be aligned to 4MB
+ */
 void vmm::map4m(uint32_t vaddr, uint32_t paddr, uint32_t flags) {
     // extract pd index
     uint32_t pd_index = (vaddr >> 22) & 0x3FF; // first 10 bits
@@ -117,6 +130,9 @@ void vmm::map4m(uint32_t vaddr, uint32_t paddr, uint32_t flags) {
 /**
  * unmaps a virtual address
  * basically removes the mapping from the page table and invalidates the TLB for that address
+ * @param vaddr the virtual address to unmap
+ * @note this does not free the physical page, it just removes the mapping
+ * @note if your goal is to free the physical page as well, `pmm::free_page(vaddr)` should be called after this function
  */
 void vmm::unmap(uint32_t vaddr) {
     // extract pd and pt indices

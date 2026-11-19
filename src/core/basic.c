@@ -305,6 +305,7 @@ void print_num(volatile unsigned int* screen, const uint16_t pitch, int num) {
 /**
  * future function to actually print a string using the font, for now its just a placeholder tho
  */
+/*
 extern void* font_start;
 extern void* font_end;
 static uint32_t x_pos = 0;
@@ -312,3 +313,4 @@ static uint32_t x_pos = 0;
 void easy_print(volatile unsigned int* screen, const uint16_t pitch, const char* str) {
     
 }
+*/

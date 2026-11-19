@@ -70,9 +70,12 @@ void kmain() {
 
     // initialize VMM and map to higher half of the kernel
     vmm_init();
-    vmm_identity_map((uint32_t)screen, (uint32_t)screen + vesa_info->pitch * vesa_info->height, PTE_P | PTE_W | PTE_PCD | PTE_PAT);
+    vmm_identity_map((uint32_t)screen, (uint32_t)screen + vesa_info->pitch * vesa_info->height, P | W | PCD | PS);
     vmm_flush_tlb((uint32_t)screen);
     vmm_enable_paging();
+
+    // initialize kernel heap
+    kheap_init();
 
     // all stars on the screen
     const int amt = 70;
