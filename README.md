@@ -8,7 +8,7 @@ Since KAOS is still in an early alpha phase, there are lots of things on the tod
 - [x] Bootloader
 - [x] Early Initialization
 - [x] IDT setup (including PIC remapping)
-- [ ] Memory Management (PMM,VMM,Kernel Heap) 
+- [x] Memory Management (PMM,VMM,Kernel Heap) 
 - [ ] Chrono driver (clock)
 - [ ] Video driver (efficient management of the LFB)
 - [ ] Input driver (keyboard, mouse, other devices like that)
