@@ -61,6 +61,11 @@ void isr_handler(interrupt_frame_t* frame) {
         }
 
         default: {
+            // pit
+            if(vector == 0x20) {
+                
+            }
+
             // kb
             if(vector == 0x21) {
                 // read scancode
